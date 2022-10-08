@@ -64,7 +64,9 @@ public class FluxAndMonoGeneratorService {
     }
 
     // flatMap :: 스트림의 원소가 배열과 같은 경우, 단일 스트림으로 반환해줌
-    // ADD Delay Option
+    // 속도 : concatMap < flatMap
+    // 순서보장 : X
+    // flatMap :: API들이 1초씩 걸린다면, 9초의 반 정도 걸림 (4-5초)
     public Flux<String> namesFlux_flatMap_async(int stringLength) {
         return Flux.fromIterable(List.of("rojae", "kim", "alex"))
                 .map(String::toUpperCase)
@@ -72,11 +74,25 @@ public class FluxAndMonoGeneratorService {
                 .flatMap(s -> splitString_withDelay(s))
                 .log();
     }
+
+    // concatMap : 비동기 파이프라인의 순서를 보장해줌 (파이프라인에서 처리 중인, 요소들의 순서를 유지시켜준다)
+    // 속도 : concatMap < flatMap
+    // 순서보장 : O
+    // concatMap :: API들이 1초씩 걸리고, 9개를 보내면 9초의 시간이 걸릴 수 있음.. (순서 보장하기 때문)
+    public Flux<String> namesFlux_concatMap_async(int stringLength) {
+        return Flux.fromIterable(List.of("rojae", "kim", "alex"))
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .concatMap(s -> splitString_withDelay(s))
+                .log();
+    }
+
     // ROJAE -> FLUX(R,O,J,A,E)
     // ADD Delay Option
     public Flux<String> splitString_withDelay(String name){
         var charArray =  name.split("");
-        var delay =  new Random().nextInt(1000);
+//        var delay =  new Random().nextInt(1000);
+        var delay = 1000;
         return Flux.fromArray(charArray)
                 .delayElements(Duration.ofMillis(delay));
     }
