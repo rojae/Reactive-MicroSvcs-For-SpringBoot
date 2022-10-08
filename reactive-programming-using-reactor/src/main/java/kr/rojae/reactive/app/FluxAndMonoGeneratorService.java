@@ -3,7 +3,9 @@ package kr.rojae.reactive.app;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Random;
 
 public class FluxAndMonoGeneratorService {
 
@@ -59,6 +61,24 @@ public class FluxAndMonoGeneratorService {
     public Flux<String> splitString(String name){
        var charArray =  name.split("");
        return Flux.fromArray(charArray);
+    }
+
+    // flatMap :: 스트림의 원소가 배열과 같은 경우, 단일 스트림으로 반환해줌
+    // ADD Delay Option
+    public Flux<String> namesFlux_flatMap_async(int stringLength) {
+        return Flux.fromIterable(List.of("rojae", "kim", "alex"))
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .flatMap(s -> splitString_withDelay(s))
+                .log();
+    }
+    // ROJAE -> FLUX(R,O,J,A,E)
+    // ADD Delay Option
+    public Flux<String> splitString_withDelay(String name){
+        var charArray =  name.split("");
+        var delay =  new Random().nextInt(1000);
+        return Flux.fromArray(charArray)
+                .delayElements(Duration.ofMillis(delay));
     }
 
     public static void main(String[] args) {
