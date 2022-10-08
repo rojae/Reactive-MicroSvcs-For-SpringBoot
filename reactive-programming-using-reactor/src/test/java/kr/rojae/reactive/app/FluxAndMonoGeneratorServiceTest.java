@@ -150,4 +150,18 @@ public class FluxAndMonoGeneratorServiceTest {
 				.expectNext("A", "L", "E", "X")
 				.verifyComplete();
 	}
+
+	@Test
+	void namesFlux_transform() {
+		// given
+		int stringLength = 3;
+
+		// when
+		var value = fluxAndMonoGeneratorService.namesFlux_transform(stringLength);
+
+		// then
+		StepVerifier.create(value)
+				.expectNextCount(9)
+				.verifyComplete();
+	}
 }

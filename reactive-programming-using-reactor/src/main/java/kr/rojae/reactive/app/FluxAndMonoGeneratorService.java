@@ -58,12 +58,6 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
-    // ROJAE -> FLUX(R,O,J,A,E)
-    public Flux<String> splitString(String name){
-       var charArray =  name.split("");
-       return Flux.fromArray(charArray);
-    }
-
     // flatMap :: 스트림의 원소가 배열과 같은 경우, 단일 스트림으로 반환해줌
     // 속도 : concatMap < flatMap
     // 순서보장 : X
@@ -116,12 +110,29 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
+    // flatMap :: 스트림의 원소가 배열과 같은 경우, 단일 스트림으로 반환해줌
+    public Flux<String> namesFlux_transform(int stringLength) {
+        Function<Flux<String>, Flux<String>> filterMap = name -> name.map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength);
+
+        return Flux.fromIterable(List.of("rojae", "kim", "alex"))
+                .transform(filterMap)
+                .flatMap(s -> splitString_withDelay(s))
+                .log();
+    }
+
+    // ROJAE -> FLUX(R,O,J,A,E)
+    public Flux<String> splitString(String name){
+        var charArray =  name.split("");
+        return Flux.fromArray(charArray);
+    }
+
     // ROJAE -> FLUX(R,O,J,A,E)
     // ADD Delay Option
     public Flux<String> splitString_withDelay(String name){
         var charArray =  name.split("");
-//        var delay =  new Random().nextInt(1000);
-        var delay = 1000;
+        var delay =  new Random().nextInt(1000);
+//        var delay = 1000;
         return Flux.fromArray(charArray)
                 .delayElements(Duration.ofMillis(delay));
     }
@@ -132,6 +143,8 @@ public class FluxAndMonoGeneratorService {
         var charList = List.of(charArrays);     // [A,L,E,X]
         return Mono.just(charList);
     }
+
+
 
 
     public static void main(String[] args) {
