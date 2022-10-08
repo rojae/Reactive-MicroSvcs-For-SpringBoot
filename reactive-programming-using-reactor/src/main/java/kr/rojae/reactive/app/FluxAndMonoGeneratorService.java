@@ -68,6 +68,7 @@ public class FluxAndMonoGeneratorService {
     // 속도 : concatMap < flatMap
     // 순서보장 : X
     // flatMap :: API들이 1초씩 걸린다면, 9초의 반 정도 걸림 (4-5초)
+    // 중요 :: 이때 각각 원소들의 순서는 보장 받음 (rojae를 수신 받는 순서는 r > o > j > a > e 순서이다)
     public Flux<String> namesFlux_flatMap_async(int stringLength) {
         return Flux.fromIterable(List.of("rojae", "kim", "alex"))
                 .map(String::toUpperCase)
@@ -88,15 +89,7 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
-    // ROJAE -> FLUX(R,O,J,A,E)
-    // ADD Delay Option
-    public Flux<String> splitString_withDelay(String name){
-        var charArray =  name.split("");
-//        var delay =  new Random().nextInt(1000);
-        var delay = 1000;
-        return Flux.fromArray(charArray)
-                .delayElements(Duration.ofMillis(delay));
-    }
+
 
     public Mono<String> namesMono_map_filter(int stringLength){
         return Mono.just("alex")
@@ -111,6 +104,26 @@ public class FluxAndMonoGeneratorService {
                 .filter(s->s.length() > stringLength)
                 .flatMap(this::splitStringMono)
                 .log();
+    }
+
+    // flatMap이지만 단일 원소이기 때문에, 순서는 상관이 없다
+    // alex :: a > l > e > x 순서로 수신받음
+    public Flux<String> namesMono_map_flatMapMany(int stringLength){
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s->s.length() > stringLength)
+                .flatMapMany(this::splitString_withDelay)
+                .log();
+    }
+
+    // ROJAE -> FLUX(R,O,J,A,E)
+    // ADD Delay Option
+    public Flux<String> splitString_withDelay(String name){
+        var charArray =  name.split("");
+//        var delay =  new Random().nextInt(1000);
+        var delay = 1000;
+        return Flux.fromArray(charArray)
+                .delayElements(Duration.ofMillis(delay));
     }
 
     private Mono<List<String>> splitStringMono(String s){
