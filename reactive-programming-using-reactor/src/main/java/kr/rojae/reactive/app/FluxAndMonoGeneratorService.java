@@ -46,6 +46,21 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
+    // flatMap :: 스트림의 원소가 배열과 같은 경우, 단일 스트림으로 반환해줌
+    public Flux<String> namesFlux_flatMap(int stringLength) {
+        return Flux.fromIterable(List.of("rojae", "kim", "alex"))
+                .map(String::toUpperCase)
+                .filter(s -> s.length() > stringLength)
+                .flatMap(s -> splitString(s))
+                .log();
+    }
+
+    // ROJAE -> FLUX(R,O,J,A,E)
+    public Flux<String> splitString(String name){
+       var charArray =  name.split("");
+       return Flux.fromArray(charArray);
+    }
+
     public static void main(String[] args) {
         FluxAndMonoGeneratorService fluxAndMonoGeneratorService = new FluxAndMonoGeneratorService();
 
