@@ -6,6 +6,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 
 public class FluxAndMonoGeneratorService {
 
@@ -96,6 +97,29 @@ public class FluxAndMonoGeneratorService {
         return Flux.fromArray(charArray)
                 .delayElements(Duration.ofMillis(delay));
     }
+
+    public Mono<String> namesMono_map_filter(int stringLength){
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s->s.length() > stringLength)
+                .log();
+    }
+
+    public Mono<List<String>> namesMono_map_flatMap(int stringLength){
+        return Mono.just("alex")
+                .map(String::toUpperCase)
+                .filter(s->s.length() > stringLength)
+                .flatMap(this::splitStringMono)
+                .log();
+    }
+
+    private Mono<List<String>> splitStringMono(String s){
+        var charArrays = s.split("");
+        System.out.println(charArrays);
+        var charList = List.of(charArrays);     // [A,L,E,X]
+        return Mono.just(charList);
+    }
+
 
     public static void main(String[] args) {
         FluxAndMonoGeneratorService fluxAndMonoGeneratorService = new FluxAndMonoGeneratorService();
