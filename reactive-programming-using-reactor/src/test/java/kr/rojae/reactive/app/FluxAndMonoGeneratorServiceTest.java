@@ -34,4 +34,33 @@ public class FluxAndMonoGeneratorServiceTest {
 				.expectNext("ROJAE", "KIM", "ALEX")
 				.verifyComplete();
 	}
+
+	@Test
+	void namesFlux_immutability() {
+		// given
+
+		// when
+		// namesFlux_map()와 비교하여, 내부 동작을 확인
+		var namesFluxMap= fluxAndMonoGeneratorService.namesFlux_immutability();
+
+		// then
+		StepVerifier.create(namesFluxMap)
+				.expectNext("rojae", "kim", "alex")
+				.verifyComplete();
+	}
+
+	@Test
+	void testNamesFlux_map() {
+		// given
+		int stringLength = 3;
+
+		// when
+		var nameFlux = fluxAndMonoGeneratorService.namesFlux_map(stringLength);
+
+		// then
+		StepVerifier.create(nameFlux)
+				.expectNext("ROJAE", "ALEX")
+				.expectNext("5-ROJAE", "4-ALEX")
+				.verifyComplete();
+	}
 }
