@@ -83,27 +83,27 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
-    public Mono<String> namesMono_map_filter(int stringLength){
+    public Mono<String> namesMono_map_filter(int stringLength) {
         return Mono.just("alex")
                 .map(String::toUpperCase)
-                .filter(s->s.length() > stringLength)
+                .filter(s -> s.length() > stringLength)
                 .log();
     }
 
-    public Mono<List<String>> namesMono_map_flatMap(int stringLength){
+    public Mono<List<String>> namesMono_map_flatMap(int stringLength) {
         return Mono.just("alex")
                 .map(String::toUpperCase)
-                .filter(s->s.length() > stringLength)
+                .filter(s -> s.length() > stringLength)
                 .flatMap(this::splitStringMono)
                 .log();
     }
 
     // flatMap이지만 단일 원소이기 때문에, 순서는 상관이 없다
     // alex :: a > l > e > x 순서로 수신받음
-    public Flux<String> namesMono_map_flatMapMany(int stringLength){
+    public Flux<String> namesMono_map_flatMapMany(int stringLength) {
         return Mono.just("alex")
                 .map(String::toUpperCase)
-                .filter(s->s.length() > stringLength)
+                .filter(s -> s.length() > stringLength)
                 .flatMapMany(this::splitString_withDelay)
                 .log();
     }
@@ -134,7 +134,7 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
-    public Flux<String> explore_concat(){
+    public Flux<String> explore_concat() {
         var abcFlux = Flux.just("A", "B", "C");
         var defFlux = Flux.just("D", "E", "F");
 
@@ -143,7 +143,7 @@ public class FluxAndMonoGeneratorService {
 
     // Flux("A", "B", "C") + Flux("D", "E", "F")
     // -> Flux("A", "B", "C", "D", "E", "F")
-    public Flux<String> explore_concatWith(){
+    public Flux<String> explore_concatWith() {
         var abcFlux = Flux.just("A", "B", "C");
         var defFlux = Flux.just("D", "E", "F");
 
@@ -151,37 +151,132 @@ public class FluxAndMonoGeneratorService {
     }
 
     // Mono(A) + Mono(B) -> Flux("A", "B")
-    public Flux<String> explore_concatWith_mono(){
-        var aMono= Mono.just("A");
+    public Flux<String> explore_concatWith_mono() {
+        var aMono = Mono.just("A");
         var bMono = Mono.just("B");
 
         return aMono.concatWith(bMono).log();
     }
 
+    public Flux<String> explore_merge() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(100))
+                .log(); // A -> B -> C
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(125))
+                .log(); // D -> E -> F
+
+        return Flux.merge(abcFlux, defFlux).log();
+    }
+
+    public Flux<String> explore_mergeWith() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(100))
+                .log(); // A -> B -> C
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(125))
+                .log(); // D -> E -> F
+
+        return defFlux.mergeWith(abcFlux).log();
+    }
+
+    // MergeSequential() :: 순서 보장
+    public Flux<String> explore_mergeSequential() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(100))
+                .log(); // A -> B -> C
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(125))
+                .log(); // D -> E -> F
+
+        return Flux.mergeSequential(abcFlux, defFlux).log();
+    }
+
+    public Flux<String> explore_zip() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        return Flux.zip(abcFlux, defFlux, (first, second) -> first + second).log(); // AD, BE, CF
+    }
+
+    public Flux<String> explore_zipWith() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        return abcFlux.zipWith(defFlux, (first, second) -> first + second).log(); // AD, BE, CF
+    }
+
+    public Mono<String> explore_zipWith_mono() {
+        var aMono = Mono.just("A");
+        var bMono = Mono.just("B");
+
+        return aMono.zipWith(bMono)
+                .map(t2 -> t2.getT1() + t2.getT2())
+                .log(); // AB
+    }
+
+    public Flux<String> explore_zip_1() {
+        var abcFlux = Flux.just("A", "B", "C")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        var defFlux = Flux.just("D", "E", "F")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        var _123Flux = Flux.just("1", "2", "3")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        var _456Flux = Flux.just("4", "5", "6")
+                .delayElements(Duration.ofMillis(new Random().nextInt(1000)))
+                .log();
+
+        return Flux.zip(abcFlux, defFlux, _123Flux, _456Flux)
+                .map(t4 -> t4.getT1() + t4.getT2() + t4.getT3() + t4.getT4())
+                .log(); // AD14, BE25, CF36
+    }
+
+
+    //////////////////////////////////////////////////
+    // Utility
+    //////////////////////////////////////////////////
+
     // ROJAE -> FLUX(R,O,J,A,E)
-    public Flux<String> splitString(String name){
-        var charArray =  name.split("");
+    public Flux<String> splitString(String name) {
+        var charArray = name.split("");
         return Flux.fromArray(charArray);
     }
 
     // ROJAE -> FLUX(R,O,J,A,E)
     // ADD Delay Option
-    public Flux<String> splitString_withDelay(String name){
-        var charArray =  name.split("");
-        var delay =  new Random().nextInt(1000);
+    public Flux<String> splitString_withDelay(String name) {
+        var charArray = name.split("");
+        var delay = new Random().nextInt(1000);
 //        var delay = 1000;
         return Flux.fromArray(charArray)
                 .delayElements(Duration.ofMillis(delay));
     }
 
-    private Mono<List<String>> splitStringMono(String s){
+    private Mono<List<String>> splitStringMono(String s) {
         var charArrays = s.split("");
         System.out.println(charArrays);
         var charList = List.of(charArrays);     // [A,L,E,X]
         return Mono.just(charList);
     }
-
-
 
 
     public static void main(String[] args) {
