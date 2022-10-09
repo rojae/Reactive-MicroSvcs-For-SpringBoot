@@ -192,4 +192,44 @@ public class FluxAndMonoGeneratorServiceTest {
 				.expectNext("DEFAULT")
 				.verifyComplete();
 	}
+
+	@Test
+	void explore_concat() {
+		// given
+
+		// when
+		var value = fluxAndMonoGeneratorService.explore_concat();
+
+		// then
+		StepVerifier.create(value)
+				.expectNext("A", "B", "C", "D", "E", "F")
+				.verifyComplete();
+	}
+
+	@Test
+	void explore_concatWith() {
+		// given
+
+		// when
+		var value = fluxAndMonoGeneratorService.explore_concatWith();
+
+		// then
+		StepVerifier.create(value)
+				.expectNext("D", "E", "F", "D", "E", "F")
+				.verifyComplete();
+	}
+
+	@Test
+	void explore_concatWith_mono() {
+		// given
+
+		// when
+		var value = fluxAndMonoGeneratorService.explore_concatWith_mono();
+
+		// then
+		StepVerifier.create(value)
+				.expectNext("A", "B")
+				.verifyComplete();
+	}
+
 }

@@ -83,8 +83,6 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
-
-
     public Mono<String> namesMono_map_filter(int stringLength){
         return Mono.just("alex")
                 .map(String::toUpperCase)
@@ -134,6 +132,30 @@ public class FluxAndMonoGeneratorService {
                 .flatMap(s -> splitString_withDelay(s))
                 .switchIfEmpty(defaultFlux)
                 .log();
+    }
+
+    public Flux<String> explore_concat(){
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+
+        return Flux.concat(abcFlux, defFlux).log();
+    }
+
+    // Flux("A", "B", "C") + Flux("D", "E", "F")
+    // -> Flux("A", "B", "C", "D", "E", "F")
+    public Flux<String> explore_concatWith(){
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+
+        return defFlux.concatWith(defFlux).log();
+    }
+
+    // Mono(A) + Mono(B) -> Flux("A", "B")
+    public Flux<String> explore_concatWith_mono(){
+        var aMono= Mono.just("A");
+        var bMono = Mono.just("B");
+
+        return aMono.concatWith(bMono).log();
     }
 
     // ROJAE -> FLUX(R,O,J,A,E)
