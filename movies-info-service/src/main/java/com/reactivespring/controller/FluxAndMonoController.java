@@ -1,0 +1,23 @@
+package com.reactivespring.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@RestController
+public class FluxAndMonoController {
+
+    @GetMapping("/flux")
+    public Flux<Integer> flux(){
+        return Flux.just(1,2,3)
+                .log();     // 비동기 동작 :: 개별의 송수신 Flux 로그
+    }
+
+    @GetMapping("/mono")
+    public Mono<String> mono(){
+        return Mono.just("hello-world")
+                .log();
+    }
+
+}
