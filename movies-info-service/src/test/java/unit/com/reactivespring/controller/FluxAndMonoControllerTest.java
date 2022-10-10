@@ -48,7 +48,7 @@ class FluxAndMonoControllerTest {
 
 
     @Test
-    void flux_approach3 (){
+    void flux_approach3(){
         webTestClient.get()
                 .uri("/flux")
                 .exchange()
@@ -59,6 +59,36 @@ class FluxAndMonoControllerTest {
                     var responseBody = listEntityExchangeResult.getResponseBody();
                     assert (Objects.requireNonNull(responseBody).size() == 3);
                 });
+    }
+
+    @Test
+    void mono(){
+        webTestClient.get()
+                .uri("/mono")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(String.class)
+                .consumeWith(stringEntityExchangeResult -> {
+                    var responseBody = stringEntityExchangeResult.getResponseBody();
+                    assertEquals(responseBody, "hello-world");
+                });
+    }
+
+    @Test
+    void stream(){
+        var value = webTestClient.get()
+                .uri("/stream")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .returnResult(Long.class)
+                .getResponseBody();
+
+        StepVerifier.create(value)
+                .expectNext(0L, 1L, 2L, 3L)
+                .thenCancel()
+                .verify();
     }
 
 }
