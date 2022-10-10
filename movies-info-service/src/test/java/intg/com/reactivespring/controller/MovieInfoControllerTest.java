@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,6 +53,17 @@ class MovieInfoControllerTest {
     }
 
     @Test
+    void getAllMovieInfos() {
+        webTestClient.get()
+                .uri(MOVIES_INFO_URL)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBodyList(MovieInfo.class)
+                .hasSize(3);
+    }
+
+    @Test
     void addMovieInfo() {
         // given
         var MovieInfo = new MovieInfo(null, "Batman Begins",
@@ -72,5 +84,25 @@ class MovieInfoControllerTest {
                 });
 
         // then
+    }
+
+
+    @Test
+    void getMovieInfoById() {
+        var id = "abc";
+
+        webTestClient.get()
+                .uri(MOVIES_INFO_URL+"/{id}", id)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("Dark Knight Rises");
+//                .expectBody(MovieInfo.class)
+//                .consumeWith(movieInfoEntityExchangeResult -> {
+//                    var selectedMovieInfo = movieInfoEntityExchangeResult.getResponseBody();
+//                    assert selectedMovieInfo != null;
+//                    assert Objects.equals(selectedMovieInfo.getMovieInfoId(), id);
+//                });
     }
 }
