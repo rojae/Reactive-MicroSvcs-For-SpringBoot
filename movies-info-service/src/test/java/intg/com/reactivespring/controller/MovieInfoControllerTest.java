@@ -105,4 +105,26 @@ class MovieInfoControllerTest {
 //                    assert Objects.equals(selectedMovieInfo.getMovieInfoId(), id);
 //                });
     }
+
+    @Test
+    void updateMovieInfo() {
+        var id = "abc";
+        var newMovieInfo = new MovieInfo(null, "Dark Knight Rises 1",
+                2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+
+        webTestClient.put()
+                .uri(MOVIES_INFO_URL + "/{id}", id)
+                .bodyValue(newMovieInfo)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+                    var updatedMovieInfo = movieInfoEntityExchangeResult.getResponseBody();
+                    assert Objects.equals(updatedMovieInfo.getName(), newMovieInfo.getName());
+                    assert Objects.equals(updatedMovieInfo.getYear(), newMovieInfo.getYear());
+                    assert updatedMovieInfo.getRelease_date().compareTo(newMovieInfo.getRelease_date()) == 0;
+                    assert updatedMovieInfo.getCast().size() == newMovieInfo.getCast().size();
+                });
+    }
 }
