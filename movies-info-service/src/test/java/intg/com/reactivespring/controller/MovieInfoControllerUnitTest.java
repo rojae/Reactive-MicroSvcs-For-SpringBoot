@@ -120,8 +120,9 @@ public class MovieInfoControllerUnitTest {
                 .expectBody(String.class)
                 .consumeWith(stringEntityExchangeResult -> {
                     var responseBody = stringEntityExchangeResult.getResponseBody();
-                    System.out.println(responseBody);
+                    var expectedErrorMessage = "movieInfo.name must be present,movieInfo.year must be positive value";
                     assert responseBody != null;
+                    assert responseBody.equals(expectedErrorMessage);
                 });
 
         // then
