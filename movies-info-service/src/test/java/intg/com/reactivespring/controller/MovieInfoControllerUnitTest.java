@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.isA;
+import static reactor.core.publisher.Mono.when;
 
 @WebFluxTest(controllers = MovieInfoController.class)
 @AutoConfigureWebTestClient
@@ -98,5 +99,47 @@ public class MovieInfoControllerUnitTest {
 
         // then
     }
+
+    @Test
+    void updateMovieInfo() {
+        var id = "mockId";
+        var newMovieInfo = new MovieInfo(null, "Dark Knight Rises 1",
+                2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+
+        Mockito.when(moviesInfoServiceMock.updateMovieInfo(isA(MovieInfo.class), isA(String.class)))
+                .thenReturn(Mono.just(new MovieInfo(id, "Dark Knight Rises 1",
+                        2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"))));
+
+        webTestClient.put()
+                .uri(MOVIES_INFO_URL + "/{id}", id)
+                .bodyValue(newMovieInfo)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+                    var updatedMovieInfo = movieInfoEntityExchangeResult.getResponseBody();
+                    assert Objects.equals(updatedMovieInfo.getName(), newMovieInfo.getName());
+                    assert Objects.equals(updatedMovieInfo.getYear(), newMovieInfo.getYear());
+                    assert updatedMovieInfo.getRelease_date().compareTo(newMovieInfo.getRelease_date()) == 0;
+                    assert updatedMovieInfo.getCast().size() == newMovieInfo.getCast().size();
+                    assert Objects.equals(updatedMovieInfo.getMovieInfoId(), "mockId");
+                });
+    }
+
+    @Test
+    void deleteMovieInfo(){
+        var id = "abc";
+
+        Mockito.when(moviesInfoServiceMock.deleteMovieInfo(isA(String.class)))
+                .thenReturn(Mono.empty());
+
+        webTestClient.delete()
+                .uri(MOVIES_INFO_URL + "/{id}", id)
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+    }
+
 
 }
