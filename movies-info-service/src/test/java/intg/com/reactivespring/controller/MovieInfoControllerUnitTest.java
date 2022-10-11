@@ -101,6 +101,33 @@ public class MovieInfoControllerUnitTest {
     }
 
     @Test
+    void addMovieInfo_validation() {
+        // given
+        var newMovieInfo = new MovieInfo(null, "",
+                -2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+
+        Mockito.when(moviesInfoServiceMock.addMovieInfo(isA(MovieInfo.class)))
+                .thenReturn(Mono.just(new MovieInfo("mockId", "Batman Begins",
+                        2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"))));
+
+        // when
+        webTestClient.post()
+                .uri(MOVIES_INFO_URL)
+                .bodyValue(newMovieInfo)
+                .exchange()
+                .expectStatus()
+                .isBadRequest()
+                .expectBody(String.class)
+                .consumeWith(stringEntityExchangeResult -> {
+                    var responseBody = stringEntityExchangeResult.getResponseBody();
+                    System.out.println(responseBody);
+                    assert responseBody != null;
+                });
+
+        // then
+    }
+
+    @Test
     void updateMovieInfo() {
         var id = "mockId";
         var newMovieInfo = new MovieInfo(null, "Dark Knight Rises 1",
@@ -128,7 +155,7 @@ public class MovieInfoControllerUnitTest {
     }
 
     @Test
-    void deleteMovieInfo(){
+    void deleteMovieInfo() {
         var id = "abc";
 
         Mockito.when(moviesInfoServiceMock.deleteMovieInfo(isA(String.class)))
