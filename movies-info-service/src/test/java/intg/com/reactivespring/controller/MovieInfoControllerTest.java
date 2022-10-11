@@ -127,4 +127,15 @@ class MovieInfoControllerTest {
                     assert updatedMovieInfo.getCast().size() == newMovieInfo.getCast().size();
                 });
     }
+
+    @Test
+    void deleteMovieInfo(){
+        var id = "abc";
+
+        webTestClient.delete()
+                .uri(MOVIES_INFO_URL + "/{id}", id)
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+    }
 }
