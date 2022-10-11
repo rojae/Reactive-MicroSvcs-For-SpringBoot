@@ -24,7 +24,7 @@ public class MovieInfo {
     @NotNull
     @Positive(message = "movieInfo.year must be positive value")
     private Integer year;
-    private List<String> cast;
+    private List<@NotBlank(message = "movieInfo.case must be not null") String> cast;
     private LocalDate release_date;
 
 }

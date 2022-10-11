@@ -104,7 +104,7 @@ public class MovieInfoControllerUnitTest {
     void addMovieInfo_validation() {
         // given
         var newMovieInfo = new MovieInfo(null, "",
-                -2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+                -2005, List.of(""), LocalDate.parse("2005-06-15"));
 
         Mockito.when(moviesInfoServiceMock.addMovieInfo(isA(MovieInfo.class)))
                 .thenReturn(Mono.just(new MovieInfo("mockId", "Batman Begins",
@@ -120,7 +120,7 @@ public class MovieInfoControllerUnitTest {
                 .expectBody(String.class)
                 .consumeWith(stringEntityExchangeResult -> {
                     var responseBody = stringEntityExchangeResult.getResponseBody();
-                    var expectedErrorMessage = "movieInfo.name must be present,movieInfo.year must be positive value";
+                    var expectedErrorMessage = "movieInfo.case must be not null,movieInfo.name must be present,movieInfo.year must be positive value";
                     assert responseBody != null;
                     assert responseBody.equals(expectedErrorMessage);
                 });
