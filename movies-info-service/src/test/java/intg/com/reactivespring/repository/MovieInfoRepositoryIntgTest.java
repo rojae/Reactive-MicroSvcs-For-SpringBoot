@@ -73,7 +73,7 @@ class MovieInfoRepositoryIntgTest {
     }
 
     @Test
-    void saveMovieInfo(){
+    void saveMovieInfo() {
         // given
         var newMovieInfo = new MovieInfo(null, "Batman Begins",
                 2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
@@ -91,7 +91,7 @@ class MovieInfoRepositoryIntgTest {
     }
 
     @Test
-    void updateMovieInfo(){
+    void updateMovieInfo() {
         // given
         var movieInfo = movieInfoRepository.findById("abc").block();
         movieInfo.setYear(2022);
@@ -109,7 +109,7 @@ class MovieInfoRepositoryIntgTest {
     }
 
     @Test
-    void deleteMovieInfo(){
+    void deleteMovieInfo() {
         // given
 
         // when
@@ -123,10 +123,21 @@ class MovieInfoRepositoryIntgTest {
     }
 
     @Test
-    void findByYear(){
+    void findByYear() {
         var movieInfoFlux = movieInfoRepository.findByYear(2005).log();
         StepVerifier.create(movieInfoFlux)
                 .expectNextCount(1)
+                .verifyComplete();
+    }
+
+    @Test
+    void findByName() {
+        String name = "The Dark Knight";
+        var movieInfoMono = movieInfoRepository.findByName(name);
+        StepVerifier.create(movieInfoMono)
+                .assertNext(movieInfo -> {
+                    assertEquals(movieInfo.getName(), name);
+                })
                 .verifyComplete();
     }
 
