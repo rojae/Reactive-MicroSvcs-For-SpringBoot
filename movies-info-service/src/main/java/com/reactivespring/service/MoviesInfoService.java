@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class MoviesInfoService {
 
-    private MovieInfoRepository movieInfoRepository;
+    private final MovieInfoRepository movieInfoRepository;
 
     public MoviesInfoService(MovieInfoRepository movieInfoRepository) {
         this.movieInfoRepository = movieInfoRepository;
@@ -17,6 +17,11 @@ public class MoviesInfoService {
 
     public Flux<MovieInfo> getAllMovieInfos() {
         return movieInfoRepository.findAll();
+    }
+
+    public Flux<MovieInfo> getMovieInfoByYear(Integer year){
+        System.out.println(year);
+        return movieInfoRepository.findByYear(year);
     }
 
     public Mono<MovieInfo> addMovieInfo(MovieInfo movieInfo) {

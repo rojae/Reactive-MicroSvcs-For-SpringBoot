@@ -3,28 +3,26 @@ package com.reactivespring.controller;
 import com.reactivespring.domain.MovieInfo;
 import com.reactivespring.repository.MovieInfoRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.mongodb.embedded.version=3.0.0")
 @AutoConfigureWebTestClient
-class MovieInfoControllerTest {
+class MovieInfoControllerIntgTest {
 
     @Autowired
     MovieInfoRepository movieInfoRepository;
@@ -104,6 +102,28 @@ class MovieInfoControllerTest {
 //                    assert selectedMovieInfo != null;
 //                    assert Objects.equals(selectedMovieInfo.getMovieInfoId(), id);
 //                });
+    }
+
+    @Test
+    void getMovieInfoByYear() {
+        var uri = UriComponentsBuilder.fromUriString(MOVIES_INFO_URL)
+                .queryParam("year", 2005)
+                .buildAndExpand()
+                .toUri();
+
+
+        webTestClient.get()
+                .uri(uri)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBodyList(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+                    var bodyValue = movieInfoEntityExchangeResult.getResponseBody();
+                    System.out.println(bodyValue);
+                    assert Objects.requireNonNull(bodyValue).size() != 0;
+                    Assertions.assertTrue(bodyValue.stream().allMatch(e -> e.getYear().equals(2005)));
+                });
     }
 
     @Test

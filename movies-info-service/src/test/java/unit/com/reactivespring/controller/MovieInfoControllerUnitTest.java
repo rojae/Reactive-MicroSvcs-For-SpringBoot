@@ -2,6 +2,7 @@ package com.reactivespring.controller;
 
 import com.reactivespring.domain.MovieInfo;
 import com.reactivespring.service.MoviesInfoService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -17,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.isA;
-import static reactor.core.publisher.Mono.when;
 
 @WebFluxTest(controllers = MovieInfoController.class)
 @AutoConfigureWebTestClient
@@ -51,6 +52,8 @@ public class MovieInfoControllerUnitTest {
                 .expectBodyList(MovieInfo.class)
                 .hasSize(3);
     }
+
+
 
     @Test
     void getMovieInfoById() {
