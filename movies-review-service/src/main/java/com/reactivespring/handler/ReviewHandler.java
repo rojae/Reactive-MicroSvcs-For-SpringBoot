@@ -20,8 +20,12 @@ public class ReviewHandler {
     public Mono<ServerResponse> addReview(ServerRequest request){
         return request.bodyToMono(Review.class)
                 .flatMap(reviewReactiveRepository::save)
-                .flatMap(ServerResponse.status(HttpStatus.OK)::bodyValue);
+                .flatMap(ServerResponse.status(HttpStatus.CREATED)::bodyValue);
     }
 
 
+    public Mono<ServerResponse> getReviews(ServerRequest serverRequest) {
+        var reviewFlux = reviewReactiveRepository.findAll();
+        return ServerResponse.ok().body(reviewFlux, Review.class);
+    }
 }

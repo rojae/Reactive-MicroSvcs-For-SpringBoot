@@ -59,6 +59,7 @@ public class ReviewsIntgTest {
                    System.out.println(savedReview);
 
                    assert savedReview != null;
+                   assert savedReview.getReviewId() != null;
                    assert savedReview.getComment().equals(review.getComment());
                 });
     }
