@@ -39,11 +39,28 @@ public class ReviewsIntgTest {
 
     @AfterEach
     void tearDown() {
-        reviewReactiveRepository.deleteAll()
-                .block();
+        reviewReactiveRepository.deleteAll().block();
     }
 
     @Test
-    void test(){}
+    void addReview(){
+        var review = new Review(null, 1L, "Awesome Movie", 9.0);
+
+        webTestClient
+                .post()
+                .uri(REVIEWS_URL)
+                .bodyValue(review)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(Review.class)
+                .consumeWith(reviewEntityExchangeResult -> {
+                   var savedReview = reviewEntityExchangeResult.getResponseBody();
+                   System.out.println(savedReview);
+
+                   assert savedReview != null;
+                   assert savedReview.getComment().equals(review.getComment());
+                });
+    }
 
 }

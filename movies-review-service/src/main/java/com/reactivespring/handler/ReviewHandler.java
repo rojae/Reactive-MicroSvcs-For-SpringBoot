@@ -11,7 +11,11 @@ import reactor.core.publisher.Mono;
 @Component
 public class ReviewHandler {
 
-    ReviewReactiveRepository reviewReactiveRepository;
+    private final ReviewReactiveRepository reviewReactiveRepository;
+
+    public ReviewHandler(ReviewReactiveRepository reviewReactiveRepository) {
+        this.reviewReactiveRepository = reviewReactiveRepository;
+    }
 
     public Mono<ServerResponse> addReview(ServerRequest request){
         return request.bodyToMono(Review.class)
