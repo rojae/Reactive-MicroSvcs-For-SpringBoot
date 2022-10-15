@@ -4,7 +4,9 @@ import com.reactivespring.handler.ReviewHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -17,9 +19,11 @@ public class ReviewRouter {
         return route()
                 .nest(path("/v1/reviews"), builder -> {
                     builder.GET("", reviewHandler::getReviews)
-                            .POST("", reviewHandler::addReview);
+                            .POST("", reviewHandler::addReview)
+                            .PUT("{id}", request -> reviewHandler.updateReview(request));
                 })
                 .GET("/v1/hello-world", (request -> ServerResponse.ok().bodyValue("hello-world")))
                 .build();
     }
+
 }
