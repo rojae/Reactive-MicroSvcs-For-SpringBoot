@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,6 +60,43 @@ class MovieInfoControllerIntgTest {
                 .is2xxSuccessful()
                 .expectBodyList(MovieInfo.class)
                 .hasSize(3);
+    }
+
+    @Test
+    void getAllMovieInfos_stream() {
+        // given
+        var MovieInfo = new MovieInfo(null, "Batman Begins",
+                2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+
+        webTestClient.post()
+                .uri(MOVIES_INFO_URL)
+                .bodyValue(MovieInfo)
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+                    var savedMovieInfo = movieInfoEntityExchangeResult.getResponseBody();
+                    assert savedMovieInfo != null;
+                    assert savedMovieInfo.getMovieInfoId() != null;
+                });
+
+        // when
+        var movieStreamFlux = webTestClient.get()
+                .uri(MOVIES_INFO_URL + "/stream")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .returnResult(MovieInfo.class)
+                .getResponseBody();
+
+        // then
+        StepVerifier.create(movieStreamFlux)
+                .assertNext(movieInfo -> {
+                    assert movieInfo.getMovieInfoId() != null;
+                })
+                .thenCancel()
+                .verify();
     }
 
     @Test
