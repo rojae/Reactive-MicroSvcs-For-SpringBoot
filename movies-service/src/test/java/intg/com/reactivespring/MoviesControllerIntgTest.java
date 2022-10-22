@@ -133,4 +133,32 @@ public class MoviesControllerIntgTest {
         // then
     }
 
+    @Test
+    void retrieveMovieId_reviews_5xx(){
+        // given
+        var movieId = "abc";
+
+        stubFor(get(urlEqualTo("/v1/movieinfos" + "/" + movieId))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .withBody("MovieInfo Service Unavailable")
+                ));
+
+        stubFor(get(urlPathEqualTo("/v1/reviews"))
+                .withQueryParam("movieInfoId", equalTo(movieId))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                ));
+
+        // when
+        webTestClient.get()
+                .uri("/v1/movies/{id}", movieId)
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectBody(String.class)
+                .isEqualTo("Server Exception in MoviesInfoService MovieInfo Service Unavailable");
+
+        // then
+    }
+
 }
